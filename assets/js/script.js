@@ -27,7 +27,7 @@ const createTextAreaEl = (time) => {
     return $(`<textarea class="col-10 hour ${cls}" id=${time}-text-area>`);
 }
 
-const createSaveButton = (time) => $(`<button class="col-1 saveBtn" id=${time}-save-btn><span class="material-icons">save</span></button>`);
+const createSaveButton = (time) => $(`<button class="col-1 saveBtn material-icons" id=${time}-save-btn>save</button>`);
 
 const populateTextArea = (id) => {
     let textArea = $(`#${id}`);
@@ -61,14 +61,24 @@ const displayTimeBlocks = () => {
     }
 }
 
-const removeDuplicateIds = () => {
+const checkForDuplicateIds = (id) => {
     for(let i = 0; i < savedEvents.length; i++) {
-        for(let j = i + 1; j < savedEvents.length; j++) {
-            if (savedEvents[i].id === savedEvents[j].id) {
-                savedEvents.splice(i, 1);
-            }
+        if (id === savedEvents[i].id) {
+            return true;
         }
     }
+}
+
+const deleteEvents = (id) => {
+
+    for (let i = 0; i < savedEvents.length; i++) {
+        if (id === savedEvents[i].id) {
+            savedEvents.splice(i, 1);
+            console.log(savedEvents)
+        }
+    }
+
+    setSavedEvents();
 }
 
 const setSavedEvents = () => localStorage.setItem('savedEvents', JSON.stringify(savedEvents));
@@ -92,12 +102,25 @@ const saveNewEvent = (event) => {
     }
 
     if (!newEvent.text) {
+        if (checkForDuplicateIds(newEvent.id)) {
+            if(!confirm("Delete event?")) {
+                return;
+            } else {
+                deleteEvents(newEvent.id);
+                return;
+            }
+        }
+    } else if (checkForDuplicateIds(newEvent.id)) {
+        if (confirm('Overwrite previous event?')) {
+            deleteEvents(newEvent.id);
+        } else {
+            return;
+        }
+    } else if (!confirm('Save event?')) {
         return;
     }
 
     savedEvents.push(newEvent);
-
-    removeDuplicateIds();
     setSavedEvents();
 }
 
@@ -109,5 +132,4 @@ const init = () => {
 }
 
 containerEl.on('click', ".saveBtn", saveNewEvent);
-
 init();
