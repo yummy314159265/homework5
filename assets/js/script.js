@@ -12,7 +12,7 @@ const displayCurrentDay = () => currentDayEl.text(getCurrentDay());
 const createHourEl = (time) => $(`<div class="col-1 hour" id=${time}-hour>${time}</div>`);
 
 const createTextAreaEl = (time) => {
-    let timeNow = moment().format('HH');
+    let timeNow = parseInt(moment().format('HH'));
     let intTime = parseInt(moment(time, 'hh a').format('HH'));
     let cls = '';
 
