@@ -5,18 +5,6 @@ const endTime = 18; //6pm
 
 let savedEvents = [];
 
-const setSavedEvents = () => localStorage.setItem('savedEvents', JSON.stringify(savedEvents));
-
-const getSavedEvents = () => {
-    
-    if (!JSON.parse(localStorage.getItem('savedEvents'))) {
-
-        return;
-    }
-
-    savedEvents = JSON.parse(localStorage.getItem('savedEvents'));
-}
-
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
 const displayCurrentDay = () => currentDayEl.text(getCurrentDay());
@@ -51,12 +39,14 @@ const populateTextArea = (id) => {
     }    
 }
 
-const createTimeBlocks = () => {
+const displayTimeBlocks = () => {
     
     for (let i = startTime; i < endTime; i++) {
         let hour = `${i}am`;
 
-        if (i === 12) {
+        if (hour === 0) {
+            hour = `12am`
+        } if (i === 12) {
             hour = `12pm`
         } else if (i > 12) {
             hour = `${i-12}pm`;
@@ -71,16 +61,43 @@ const createTimeBlocks = () => {
     }
 }
 
+const removeDuplicateIds = () => {
+    for(let i = 0; i < savedEvents.length; i++) {
+        for(let j = i + 1; j < savedEvents.length; j++) {
+            if (savedEvents[i].id === savedEvents[j].id) {
+                savedEvents.splice(i, 1);
+            }
+        }
+    }
+}
+
+const setSavedEvents = () => localStorage.setItem('savedEvents', JSON.stringify(savedEvents));
+
+const getSavedEvents = () => {
+    
+    if (!JSON.parse(localStorage.getItem('savedEvents'))) {
+        return;
+    }
+    
+    savedEvents = JSON.parse(localStorage.getItem('savedEvents'));
+}
+
 const saveNewEvent = (event) => {
     event.preventDefault();
     target = $(event.target);
 
     let newEvent = {
-        id: target.parent().children('textarea').attr('id'),
-        text: target.parent().children('textarea').val()
+        id: target.siblings('textarea').attr('id'),
+        text: target.siblings('textarea').val()
+    }
+
+    if (!newEvent.text) {
+        return;
     }
 
     savedEvents.push(newEvent);
+
+    removeDuplicateIds();
     setSavedEvents();
 }
 
@@ -88,7 +105,7 @@ const init = () => {
     // other stuff here
     getSavedEvents();
     displayCurrentDay();
-    createTimeBlocks();
+    displayTimeBlocks();
 }
 
 containerEl.on('click', ".saveBtn", saveNewEvent);
