@@ -27,7 +27,7 @@ const createTextAreaEl = (time) => {
     return $(`<textarea class="col-10 hour ${cls}" id=${time}-text-area>`);
 }
 
-const createSaveButton = (time) => $(`<button class="col-1 saveBtn" id=${time}-save-btn>💾</button>`);
+const createSaveButton = (time) => $(`<button class="col-1 saveBtn" id=${time}-save-btn><span class="material-icons">save</span></button>`);
 
 const populateTextArea = (id) => {
     let textArea = $(`#${id}`);
