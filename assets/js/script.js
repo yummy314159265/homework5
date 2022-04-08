@@ -3,6 +3,7 @@ const containerEl = $('.container');
 const modalLabelEl = $('#ModalLabel');
 const modalButtonEl = $('#s-d-btn');
 const modalEl = $('#Modal');
+const feedbackEl = $('#feedback');
 const startTime = 9; 
 const endTime = 18; 
 
@@ -97,6 +98,10 @@ const deleteEvent = (eventForDeletion) => {
     if (checkForDuplicateIds(eventForDeletion.id)) {
         removeEvents(eventForDeletion.id);
         $(`#${eventForDeletion.id}`).val('');
+        
+        let feedbackText = 'Deleting event...';
+        displayFeedbackEl(feedbackText);
+
         setSavedEvents();
     } 
 }
@@ -114,13 +119,12 @@ const getSavedEvents = () => {
 
 const saveNewEvent = (newEvent) => {
 
-    if(!newEvent.text) {
-        return;
-    }
-
     if (checkForDuplicateIds(newEvent.id)) {
         removeEvents(newEvent.id);
     } 
+
+    let feedbackText = 'Saving event...';
+    displayFeedbackEl(feedbackText);
 
     savedEvents.push(newEvent);
     setSavedEvents();
@@ -168,6 +172,19 @@ const confirmSaveOrDelete = (event) => {
     } else if (target.attr('data-function') === 'save') {
         saveNewEvent(textAreaValue);
     }
+}
+
+const displayFeedbackEl = (feedback) => {
+
+    feedbackEl.text(feedback)
+
+    setTimeout(() => {
+        feedbackEl.css('top', '10px');
+    }, 10)
+
+    setTimeout(() => {
+        feedbackEl.css('top', '-35px');
+    }, 3000)
 }
 
 const init = () => {
