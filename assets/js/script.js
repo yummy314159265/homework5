@@ -3,8 +3,8 @@ const containerEl = $('.container');
 const modalLabelEl = $('#ModalLabel');
 const modalButtonEl = $('#s-d-btn');
 const modalEl = $('#Modal');
-const startTime = 9; //9am
-const endTime = 18; //6pm
+const startTime = 9; 
+const endTime = 18; 
 
 let savedEvents = [];
 let textAreaValue = {
@@ -138,34 +138,39 @@ const displaySaveModal = (event) => {
     let target = $(event.target);
 
     textAreaValue = getTextAreaValue(target);
+    
+    if (textAreaValue.text === '') {
+        modalButtonEl.attr('data-function', 'delete');
+    } else {
+        modalButtonEl.attr('data-function', 'save');
+    }
 
     modalLabelEl.text('Save event?');
-    modalButtonEl.attr('data-function', 'save');
 }
 
 const displayDeleteModal = (event) => {
     event.preventDefault();
     let target = $(event.target);
 
+    textAreaValue = getTextAreaValue(target);
+
     modalLabelEl.text('Delete event?');
     modalButtonEl.attr('data-function', 'delete');
-
-    textAreaValue = getTextAreaValue(target);
 }
 
 const confirmSaveOrDelete = (event) => {
     event.preventDefault();
     let target = $(event.target);
 
-    if (target.attr('data-function') === 'save') {
-        saveNewEvent(textAreaValue);
-    } else if (target.attr('data-function') === 'delete') {
+
+    if (target.attr('data-function') === 'delete') {
         deleteEvent(textAreaValue);
+    } else if (target.attr('data-function') === 'save') {
+        saveNewEvent(textAreaValue);
     }
 }
 
 const init = () => {
-    // other stuff here
     getSavedEvents();
     displayCurrentDay();
     displayTimeBlocks();
