@@ -1,9 +1,16 @@
 const currentDayEl = $('#currentDay');
 const containerEl = $('.container');
+const modalLabelEl = $('#ModalLabel');
+const modalButtonEl = $('#s-d-btn');
+const modalEl = $('#Modal');
 const startTime = 9; //9am
 const endTime = 18; //6pm
 
 let savedEvents = [];
+let textAreaValue = {
+    id: '',
+    text: ''
+};
 
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
@@ -27,7 +34,16 @@ const createTextAreaEl = (time) => {
     return $(`<textarea class="col-10 hour ${cls}" id=${time}-text-area>`);
 }
 
-const createSaveButton = (time) => $(`<button class="col-1 saveBtn material-icons" id=${time}-save-btn>save</button>`);
+const createSaveButton = (time) => $(`<button class="saveBtn material-icons h-50" type="button" data-bs-toggle="modal" data-bs-target="#Modal" id=${time}-save-btn>save</button>`);
+
+const createDelButton = (time) => $(`<button class="deleteBtn material-icons h-50" type="button" data-bs-toggle="modal" data-bs-target="#Modal" id=${time}-del-btn>delete</button>`);
+
+const createButtonDivEl = (time) => {
+    let buttonDivEl = $(`<div class="col-1 buttonDiv" id=${time}-button-div>`);
+    buttonDivEl.append(createSaveButton(time));
+    buttonDivEl.append(createDelButton(time));
+    return buttonDivEl;
+}
 
 const populateTextArea = (id) => {
     let textArea = $(`#${id}`);
@@ -55,7 +71,7 @@ const displayTimeBlocks = () => {
         let timeBlockEl = $(`<div class="row time-block" id=${hour}-time-block>`);
         timeBlockEl.append(createHourEl(hour));
         timeBlockEl.append(createTextAreaEl(hour));
-        timeBlockEl.append(createSaveButton(hour));
+        timeBlockEl.append(createButtonDivEl(hour));
         containerEl.append(timeBlockEl);
         populateTextArea(`${hour}-text-area`);
     }
@@ -69,16 +85,20 @@ const checkForDuplicateIds = (id) => {
     }
 }
 
-const deleteEvents = (id) => {
-
+const removeEvents = (id) => {
     for (let i = 0; i < savedEvents.length; i++) {
         if (id === savedEvents[i].id) {
             savedEvents.splice(i, 1);
-            console.log(savedEvents)
         }
     }
+}
 
-    setSavedEvents();
+const deleteEvent = (eventForDeletion) => {
+    if (checkForDuplicateIds(eventForDeletion.id)) {
+        removeEvents(eventForDeletion.id);
+        $(`#${eventForDeletion.id}`).val('');
+        setSavedEvents();
+    } 
 }
 
 const setSavedEvents = () => localStorage.setItem('savedEvents', JSON.stringify(savedEvents));
@@ -92,36 +112,56 @@ const getSavedEvents = () => {
     savedEvents = JSON.parse(localStorage.getItem('savedEvents'));
 }
 
-const saveNewEvent = (event) => {
-    event.preventDefault();
-    target = $(event.target);
+const saveNewEvent = (newEvent) => {
 
-    let newEvent = {
-        id: target.siblings('textarea').attr('id'),
-        text: target.siblings('textarea').val()
-    }
-
-    if (!newEvent.text) {
-        if (checkForDuplicateIds(newEvent.id)) {
-            if(!confirm("Delete event?")) {
-                return;
-            } else {
-                deleteEvents(newEvent.id);
-                return;
-            }
-        }
-    } else if (checkForDuplicateIds(newEvent.id)) {
-        if (confirm('Overwrite previous event?')) {
-            deleteEvents(newEvent.id);
-        } else {
-            return;
-        }
-    } else if (!confirm('Save event?')) {
+    if(!newEvent.text) {
         return;
     }
 
+    if (checkForDuplicateIds(newEvent.id)) {
+        removeEvents(newEvent.id);
+    } 
+
     savedEvents.push(newEvent);
     setSavedEvents();
+}
+
+const getTextAreaValue = (buttonPressed) => {
+    return {
+        id: buttonPressed.parent().siblings('textarea').attr('id'),
+        text: buttonPressed.parent().siblings('textarea').val()
+    }
+}
+
+const displaySaveModal = (event) => {
+    event.preventDefault();
+    let target = $(event.target);
+
+    textAreaValue = getTextAreaValue(target);
+
+    modalLabelEl.text('Save event?');
+    modalButtonEl.attr('data-function', 'save');
+}
+
+const displayDeleteModal = (event) => {
+    event.preventDefault();
+    let target = $(event.target);
+
+    modalLabelEl.text('Delete event?');
+    modalButtonEl.attr('data-function', 'delete');
+
+    textAreaValue = getTextAreaValue(target);
+}
+
+const confirmSaveOrDelete = (event) => {
+    event.preventDefault();
+    let target = $(event.target);
+
+    if (target.attr('data-function') === 'save') {
+        saveNewEvent(textAreaValue);
+    } else if (target.attr('data-function') === 'delete') {
+        deleteEvent(textAreaValue);
+    }
 }
 
 const init = () => {
@@ -131,5 +171,8 @@ const init = () => {
     displayTimeBlocks();
 }
 
-containerEl.on('click', ".saveBtn", saveNewEvent);
+containerEl.on('click', ".deleteBtn", displayDeleteModal);
+containerEl.on('click', ".saveBtn", displaySaveModal);
+modalButtonEl.on('click', confirmSaveOrDelete)
+
 init();
