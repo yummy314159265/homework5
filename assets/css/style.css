@@ -94,7 +94,7 @@ textarea {
 #feedback {
   text-align: right; 
   margin-right: 10px;
-  font-size: 30px;
+  font-size: 18px;
   transition: all 1s ease-in-out;
   bottom: -35px;
 }

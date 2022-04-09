@@ -15,10 +15,7 @@ let textAreaValue = {
 
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
-const displayCurrentDay = () => {
-    currentDayEl.text(getCurrentDay());
-    console.log('updating day...', moment().format('MMMM Do YYYY, h:mm:ss a'));
-}
+const displayCurrentDay = () => currentDayEl.text(getCurrentDay());
 
 const createHourEl = (time) => $(`<div class="col-1 hour" id=${time}-hour>${time}</div>`);
 
@@ -104,15 +101,16 @@ const removeEvents = (id) => {
 }
 
 const deleteEvent = (eventForDeletion) => {
-    if (checkForDuplicateIds(eventForDeletion.id)) {
-        removeEvents(eventForDeletion.id);
+    if (!$(`#${eventForDeletion.id}`).val() && !checkForDuplicateIds(eventForDeletion.id)){
+        displayFeedbackEl('No events to delete');
+    } else if ($(`#${eventForDeletion.id}`).val()) {
         $(`#${eventForDeletion.id}`).val('');
-        
-        let feedbackText = 'Deleting event...';
-        displayFeedbackEl(feedbackText);
-
+        displayFeedbackEl('Deleting event...');
+    } else {
+        removeEvents(eventForDeletion.id);
+        displayFeedbackEl('Deleting event...');
         setSavedEvents();
-    } 
+    }
 }
 
 const setSavedEvents = () => localStorage.setItem('savedEvents', JSON.stringify(savedEvents));
@@ -130,10 +128,13 @@ const saveNewEvent = (newEvent) => {
 
     if (checkForDuplicateIds(newEvent.id)) {
         removeEvents(newEvent.id);
-    } 
+    }
 
-    let feedbackText = 'Saving event...';
-    displayFeedbackEl(feedbackText);
+    if (newEvent.text) {
+        displayFeedbackEl('Saving event...');
+    } else {
+        displayFeedbackEl('No event to save');
+    }
 
     savedEvents.push(newEvent);
     setSavedEvents();
@@ -152,13 +153,9 @@ const displaySaveModal = (event) => {
 
     textAreaValue = getTextAreaValue(target);
     
-    if (textAreaValue.text === '') {
-        modalButtonEl.attr('data-function', 'delete');
-        modalLabelEl.text('Delete event?');
-    } else {
-        modalButtonEl.attr('data-function', 'save');
-        modalLabelEl.text('Save event?');
-    }
+    modalButtonEl.attr('data-function', 'save');
+    modalLabelEl.text('Save event?');
+
 }
 
 const displayDeleteModal = (event) => {
@@ -174,7 +171,6 @@ const displayDeleteModal = (event) => {
 const confirmSaveOrDelete = (event) => {
     event.preventDefault();
     let target = $(event.target);
-
 
     if (target.attr('data-function') === 'delete') {
         deleteEvent(textAreaValue);
@@ -209,8 +205,6 @@ const updateTextAreas = () => {
                 textArea.addClass(cls);
             }
         }
-
-        console.log('updating time block...', moment().format('MMMM Do YYYY, h:mm:ss a'));
 
     }, 5000);
 }
