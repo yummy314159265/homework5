@@ -22,7 +22,10 @@ let deleteTextAreaValue = {
 
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
-const displayCurrentDay = () => currentDayEl.text(getCurrentDay());
+const displayCurrentDay = () => {
+    console.log('updating date',  moment().format('MMM Do, YYYY, hh:mm:ss'));
+    return currentDayEl.text(getCurrentDay());  
+} 
 
 const createHourEl = (time) => $(`<div class="col-1 hour" id=${time}-hour>${time}</div>`);
 
@@ -219,12 +222,12 @@ const updateTextAreas = () => {
                 $(textArea).addClass(cls);
             }
         }
+        console.log('updating text area...',  moment().format('MMM Do, YYYY, hh:mm:ss'));
 
     }, 5000);
 }
 
 const updateDate = () => setInterval(displayCurrentDay, 3600000);
-
 
 const init = () => {
     getSavedEvents();
