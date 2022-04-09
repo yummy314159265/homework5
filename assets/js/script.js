@@ -154,11 +154,11 @@ const displaySaveModal = (event) => {
     
     if (textAreaValue.text === '') {
         modalButtonEl.attr('data-function', 'delete');
+        modalLabelEl.text('Delete event?');
     } else {
         modalButtonEl.attr('data-function', 'save');
+        modalLabelEl.text('Save event?');
     }
-
-    modalLabelEl.text('Save event?');
 }
 
 const displayDeleteModal = (event) => {
