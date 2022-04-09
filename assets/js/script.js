@@ -15,22 +15,31 @@ let textAreaValue = {
 
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
-const displayCurrentDay = () => currentDayEl.text(getCurrentDay());
+const displayCurrentDay = () => {
+    currentDayEl.text(getCurrentDay());
+    console.log('updating day...', moment().format('MMMM Do YYYY, h:mm:ss a'));
+}
 
 const createHourEl = (time) => $(`<div class="col-1 hour" id=${time}-hour>${time}</div>`);
 
-const createTextAreaEl = (time) => {
+const setTimeClass = (time) => {
     let timeNow = parseInt(moment().format('HH'));
-    let intTime = parseInt(moment(time, 'hh a').format('HH'));
-    let cls = '';
-
-    if (timeNow > intTime) {
+    let cls = ''
+    
+    if (timeNow > time) {
         cls = 'past';
-    } else if (timeNow === intTime) {
+    } else if (timeNow === time) {
         cls = 'present';
-    } else if (timeNow < intTime) {
+    } else if (timeNow < time) {
         cls = 'future';
     }
+
+    return cls;
+}
+
+const createTextAreaEl = (time) => {
+    let timeBlock = parseInt(moment(time, 'hh a').format('HH'));
+    let cls = setTimeClass(timeBlock);
 
     return $(`<textarea class="col-10 hour ${cls}" id=${time}-text-area>`);
 }
@@ -187,10 +196,34 @@ const displayFeedbackEl = (feedback) => {
     }, 3000)
 }
 
+const updateTextAreas = () => {
+    let repeater = setInterval(() => {
+
+        textAreas = $('textarea')
+
+        for (let textArea of textAreas) {
+            let timeBlock = parseInt($(textArea).attr('id').split('-')[0]);
+            let cls = setTimeClass(timeBlock);
+            if (!$(textArea).hasClass(cls)) {
+                textArea.removeClass(['past', 'present', 'future']);
+                textArea.addClass(cls);
+            }
+        }
+
+        console.log('updating time block...', moment().format('MMMM Do YYYY, h:mm:ss a'));
+
+    }, 5000);
+}
+
+const updateDate = () => setInterval(displayCurrentDay, 3600000);
+
+
 const init = () => {
     getSavedEvents();
     displayCurrentDay();
     displayTimeBlocks();
+    updateTextAreas();
+    updateDate();
 }
 
 containerEl.on('click', ".deleteBtn", displayDeleteModal);
