@@ -96,5 +96,5 @@ textarea {
   margin-right: 10px;
   font-size: 30px;
   transition: all 1s ease-in-out;
-  top: -35px;
+  bottom: -35px;
 }

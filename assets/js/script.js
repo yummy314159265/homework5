@@ -188,11 +188,11 @@ const displayFeedbackEl = (feedback) => {
     feedbackEl.text(feedback)
 
     setTimeout(() => {
-        feedbackEl.css('top', '10px');
+        feedbackEl.css('bottom', '10px');
     }, 10)
 
     setTimeout(() => {
-        feedbackEl.css('top', '-35px');
+        feedbackEl.css('bottom', '-35px');
     }, 3000)
 }
 
