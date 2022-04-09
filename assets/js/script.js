@@ -8,10 +8,17 @@ const startTime = 9;
 const endTime = 18; 
 
 let savedEvents = [];
-let textAreaValue = {
+
+let saveTextAreaValue = {
     id: '',
     text: ''
 };
+
+let deleteTextAreaValue = {
+    id: '',
+    text: ''
+};
+
 
 const getCurrentDay = () => moment().format('MMM Do, YYYY');
 
@@ -90,6 +97,8 @@ const checkForDuplicateIds = (id) => {
             return true;
         }
     }
+
+    return false;
 }
 
 const removeEvents = (id) => {
@@ -101,11 +110,11 @@ const removeEvents = (id) => {
 }
 
 const deleteEvent = (eventForDeletion) => {
-    
-    if (!$(`#${eventForDeletion.id}`).val() && !checkForDuplicateIds(eventForDeletion.id)) {
+
+    if ($(`#${eventForDeletion.id}`).val() == '' && !checkForDuplicateIds(eventForDeletion.id)) {
         displayFeedbackEl('No event to delete');
     } else {
-        
+
         if ($(`#${eventForDeletion.id}`).val()) {
             $(`#${eventForDeletion.id}`).val('');
         } 
@@ -132,15 +141,15 @@ const getSavedEvents = () => {
 
 const saveNewEvent = (newEvent) => {
 
-    if (checkForDuplicateIds(newEvent.id)) {
-        removeEvents(newEvent.id);
-    }
-
     if (newEvent.text) {
         displayFeedbackEl('Saving event...');
     } else {
         displayFeedbackEl('No event to save');
         return;
+    }
+
+    if (checkForDuplicateIds(newEvent.id)) {
+        removeEvents(newEvent.id);
     }
 
     savedEvents.push(newEvent);
@@ -158,31 +167,29 @@ const displaySaveModal = (event) => {
     event.preventDefault();
     let target = $(event.target);
 
-    textAreaValue = getTextAreaValue(target);
+    saveTextAreaValue = getTextAreaValue(target);
     
     modalButtonEl.attr('data-function', 'save');
     modalLabelEl.text('Save event?');
-
 }
 
 const displayDeleteModal = (event) => {
     event.preventDefault();
     let target = $(event.target);
 
-    textAreaValue = getTextAreaValue(target);
+    deleteTextAreaValue = getTextAreaValue(target);
 
     modalLabelEl.text('Delete event?');
     modalButtonEl.attr('data-function', 'delete');
 }
 
 const confirmSaveOrDelete = (event) => {
-    event.preventDefault();
     let target = $(event.target);
 
     if (target.attr('data-function') === 'delete') {
-        deleteEvent(textAreaValue);
+        deleteEvent(deleteTextAreaValue);
     } else if (target.attr('data-function') === 'save') {
-        saveNewEvent(textAreaValue);
+        saveNewEvent(saveTextAreaValue);
     }
 }
 
