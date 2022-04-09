@@ -101,15 +101,21 @@ const removeEvents = (id) => {
 }
 
 const deleteEvent = (eventForDeletion) => {
-    if (!$(`#${eventForDeletion.id}`).val() && !checkForDuplicateIds(eventForDeletion.id)){
-        displayFeedbackEl('No events to delete');
-    } else if ($(`#${eventForDeletion.id}`).val()) {
-        $(`#${eventForDeletion.id}`).val('');
-        displayFeedbackEl('Deleting event...');
+    
+    if (!$(`#${eventForDeletion.id}`).val() && !checkForDuplicateIds(eventForDeletion.id)) {
+        displayFeedbackEl('No event to delete');
     } else {
-        removeEvents(eventForDeletion.id);
+        
+        if ($(`#${eventForDeletion.id}`).val()) {
+            $(`#${eventForDeletion.id}`).val('');
+        } 
+        
+        if (checkForDuplicateIds(eventForDeletion.id)) {
+            removeEvents(eventForDeletion.id);
+            setSavedEvents();
+        } 
+
         displayFeedbackEl('Deleting event...');
-        setSavedEvents();
     }
 }
 
@@ -134,6 +140,7 @@ const saveNewEvent = (newEvent) => {
         displayFeedbackEl('Saving event...');
     } else {
         displayFeedbackEl('No event to save');
+        return;
     }
 
     savedEvents.push(newEvent);
@@ -201,8 +208,8 @@ const updateTextAreas = () => {
             let timeBlock = parseInt($(textArea).attr('id').split('-')[0]);
             let cls = setTimeClass(timeBlock);
             if (!$(textArea).hasClass(cls)) {
-                textArea.removeClass(['past', 'present', 'future']);
-                textArea.addClass(cls);
+                $(textArea).removeClass(['past', 'present', 'future']);
+                $(textArea).addClass(cls);
             }
         }
 
